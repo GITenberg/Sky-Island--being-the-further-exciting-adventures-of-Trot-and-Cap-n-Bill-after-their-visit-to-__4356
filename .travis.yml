@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: FLqSCJRzU8u1Z1FZoIbkStg1z95hCWX/E28PYl0tZjxTMaz4/w939yig9hjS5zOFbvA2o2MmwQqAmhTko1B9s3ZDYkiTUo1/DsWLiqMUP+CuW2oZL20mCKI8lXKagnQBzYLUUviXH4sjyKyxFQZjUL7Sd61xg3tgHru8DdAGPHOICbAE7jf8wHTX8eKxklXaVjCPbfj+zAgGhuhpZzA2lPq19qYP4RlyBBELifdmR9XIC+6NPzpL6rF0zI978Jc3QaI+P5oPA0w7HBxjzOQgx6mPLJN+92aFg6yvhkVpYzkzCM5mg2oJwG7vV8YAShTq/mOMqI5FeduqEC/w0k/xKfUR+zRl64CO3It34X2azW5nflAu152aMeZeUiFEs/OGVyqoUNGs9pU5fDHI6hKFgRCrkGlB343ymO/vTTVnjNFP8TBDIa/Ijjj5n+xReoAJNEJfTw818qVOsK5Ri6Kl95oJkOxRWYD9t7m4hhFXqh+P6+1xwZ8BLV5MINpD0kbwo56Gn63kKnF+AnXXAFMCENWWv//GLGcqMbNCKy1vJ+vKiC0VyGgIjHkAiMj8JEJA+K1UGygBgIhjSw2EK8Qm/HtZV//GtRWkWhtf1GZq37b31qL55WaiXMsvYM9AV8romLq42wHLnVgp6dVNFzIH6fG68qkFJ3ECej6MyRIqra0=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Sky-Island--being-the-further-exciting-adventures-of-Trot-and-Cap-n-Bill-after-their-visit-to-__4356
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
